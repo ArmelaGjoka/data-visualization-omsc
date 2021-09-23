@@ -16,7 +16,6 @@ id,name
 5141,Heather Langenkamp
 5139,Robert Englund
 5140,Wes Craven
-18355,Alex Winter
 64,Gary Oldman
 564,Richard Linklater
 584,Philip K. Dick
@@ -128,8 +127,6 @@ id,name
 7908,Frank Oz
 134,Jamie Foxx
 1006721,Charles Scorsese
-3083483,Nathalie Labarthe
-3,Harrison Ford
 14782,Andrew Robinson
 190,Clint Eastwood
 147,Michael Madsen
@@ -161,10 +158,6 @@ id,name
 113,Christopher Lee
 3027,Stephen King
 131120,Henry Strozier
-7073,Michael Berryman
-27991,Stuart Gordon
-73040,Doug Bradley
-27993,Jeffrey Combs
 1415341,Kazuhiro Tsuji
 1267653,Chet Zar
 1003,Jean Reno
@@ -224,6 +217,9 @@ id,name
 1112923,Ozwald Boateng
 2710,James Cameron
 8691,Zoe Saldana
+40462,Kristen Bell
+1532312,Kirby Howell-Baptiste
+1294982,Paul Walter Hauser
 1357,Christopher Doyle
 531,Danny Elfman
 4492,Philip Baker Hall
@@ -283,9 +279,6 @@ id,name
 2161106,Sebastian Gorka
 2161107,Raheem Kassam
 2161104,Corey Lewandowski
-2255261,Michel Zlotowski
-4960,Charles Bronson
-15753,Jill Ireland
 1103791,Joan Agajanian Quinn
 95678,Jean-Michel Basquiat
 5469,Ralph Fiennes
@@ -312,8 +305,6 @@ id,name
 175981,Linda Doucett
 21246,Corbin Bernsen
 94814,Susan Dey
-562922,Christian Keyes
-21215,Elise Neal
 2654014,Mariah Robinson
 2673964,Arie Thompson
 21563,Corin Nemec
@@ -517,8 +508,6 @@ id,name
 113674,Victoria Alonso
 1121,Benicio del Toro
 543530,Dave Bautista
-234352,Margot Robbie
-17605,Idris Elba
 4027,Frank Darabont
 1223867,Robert Kirkman
 46348,Denise M. Huth
@@ -531,9 +520,9 @@ id,name
 2744,Carmen Maura
 3131,Antonio Banderas
 98357,Pilar López de Ayala
+1190668,Timothée Chalamet
+933238,Rebecca Ferguson
 34902,Jane Horrocks
-154647,Michael Greyeyes
-7517,Kate Bosworth
 880,Ben Affleck
 73968,Henry Cavill
 90633,Gal Gadot
@@ -604,6 +593,7 @@ id,name
 24045,Joseph Gordon-Levitt
 3899,Ken Watanabe
 21007,Jonah Hill
+234352,Margot Robbie
 15831,Frank Welker
 27319,Christoph Waltz
 9261,Frank Abagnale Jr.
@@ -669,6 +659,7 @@ id,name
 12898,Tim Allen
 2297235,Antony Horder
 491,John Williams
+3,Harrison Ford
 738,Sean Connery
 132305,Nobuhiko Ōbayashi
 5026,Akira Kurosawa
@@ -791,9 +782,6 @@ id,name
 9309,Richard Pryor
 57551,Mario Cantone
 5726,Cedric the Entertainer
-10814,Wesley Snipes
-18897,Jackie Chan
-19429,Bruce Lee
 448,Hilary Swank
 3265,Eli Wallach
 4078,Lee Van Cleef
@@ -805,6 +793,8 @@ id,name
 4385,Sergio Leone
 34259,Jean-Yves Berteloot
 11066,Hal Holbrook
+19429,Bruce Lee
+18897,Jackie Chan
 15111,Jean-Claude Van Damme
 1932312,Maureen McCarthy
 2254973,Carlie Guevara
@@ -822,6 +812,8 @@ id,name
 1572034,Robert Scott Wilson
 2555,David Proval
 2047,Danny Glover
+73040,Doug Bradley
+27993,Jeffrey Combs
 252527,Rusty Goffe
 565671,Sophia Disgrace
 1198123,Rachel Grubb
@@ -905,6 +897,7 @@ id,name
 35475,Sean S. Cunningham
 37470,Adrienne King
 37469,Betsy Palmer
+7073,Michael Berryman
 99906,John Bloom
 1351030,Jeff Kim
 1924482,Nick Wolfhard
@@ -925,7 +918,6 @@ id,name
 54500,Will Kemp
 134610,Marco Soriano
 1547914,Elan Garfias
-1571231,Mat Lucas
 60279,Fred Tatasciore
 1082094,Dave B. Mitchell
 12077,Jim Cummings
@@ -983,6 +975,7 @@ id,name
 5,Peter Cushing
 1241229,Bob Wilkins
 2922,Boris Karloff
+3061,Ewan McGregor
 8724,Errol Flynn
 30296,Joanne Dru
 29903,Peter Finch

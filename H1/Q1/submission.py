@@ -57,34 +57,37 @@ class Graph:
 
 
     def add_node(self, id: str, name: str) -> None:
-        for node in self.nodes: 
-            if node[0] == id:
-                print('Node exists')
-                return
-
-        self.nodes.append([id, name])
+        if not self.node_exists(id):
+            self.nodes.append([id, name])
 
         return
+
+    def node_exists(self, id: str) -> bool:
+        for node in self.nodes: 
+            if node[0] == id:
+                return True
+
+        return False
     
 
     def add_edge(self, source: str, target: str) -> None:
-        for edge in self.edges:
-            if ((edge[0] == source and edge[1] == target) or (edge[1] == source and edge[0] == target) or (source == target)):
-                return
-
-        self.edges.append([source, target])
+        if not self.edge_exists(source, target):
+            self.edges.append([source, target])
             
         return
-
+    
+    def edge_exists(self, source: str, target: str) -> bool:
+        for edge in self.edges:
+            if (edge[0] == source and edge[1] == target) or (edge[1] == source and edge[0] == target) or (source == target):
+                return True
+        return False
+                   
 
     def total_nodes(self) -> int:
         return len(self.nodes)
 
 
     def total_edges(self) -> int:
-        """
-        Returns an integer value for the total number of edges in the graph
-        """
         return len(self.edges)
 
 
@@ -221,7 +224,7 @@ def return_name()->str:
 
 
 def return_argo_lite_snapshot()->str:
-    return 'https://poloclub.github.io/argo-graph-lite/#9f201e04-b2c1-4cb7-804d-c495eae5a1fc'
+    return 'https://poloclub.github.io/argo-graph-lite/#27c852d8-2b28-47bf-9a65-6186718a34b3'
 
 
 
@@ -239,35 +242,40 @@ if __name__ == "__main__":
     # Suggestion: code should contain steps outlined above in BUILD CO-ACTOR NETWORK
 
     movies = tmdb_api_utils.get_movie_credits_for_person('2975', 8)
+    temp_first_nodes = []
     for movie in movies:
         cast_members = tmdb_api_utils.get_movie_cast(movie['id'], 3)
         for member in cast_members:
-            graph.add_node(str(member['id']), member['name'])
+            # Add node
+            graph.add_node(id = str(member['id']), name = str(member['name']).replace(",", ""))
+            temp_first_nodes.append(str(member['id']))
+            # Add edge
             graph.add_edge( '2975', str(member['id']))
 
     i = 0
-    first_iteration_nodes_ids = []
+    temp_second_nodes = []
+    nodes = []
+    excludeIds = []
     while i < 2:
-        nodes = graph.nodes
-        print(graph.total_nodes())
-        i += 1
+        if i == 0:
+            nodes = temp_first_nodes
+            excludeIds = ['2975']
+        else:
+            nodes = temp_second_nodes
+            excludeIds = ['2975'].append(temp_first_nodes)
+
         for node in nodes:
-            movies_credits = tmdb_api_utils.get_movie_credits_for_person(node[0], 8)
+            movies_credits = tmdb_api_utils.get_movie_credits_for_person(node, 8)
             for movie in movies_credits:
-                if graph.total_nodes() > 1000:
-                    break
-                exclude_ids = []
-                if i == 0:
-                    exclude_ids = ['2975']
-                else:
-                    exclude_ids = first_iteration_nodes_ids
-                cast_members = tmdb_api_utils.get_movie_cast(movie['id'], 3, exclude_ids)
+                cast_members = tmdb_api_utils.get_movie_cast(movie['id'], 3, excludeIds)
+                
                 for member in cast_members:
-                    graph.add_node(str(member['id']), member['name'])
+                    graph.add_node(id = str(member['id']), name = str(member['name']).replace(",", ""))
                     if i == 0:
-                        first_iteration_nodes_ids.append(str(member['id']))
-                    print(graph.total_nodes())
-                    graph.add_edge(node[0], str(member['id']))
+                        temp_second_nodes.append(str(member['id']))
+
+                    graph.add_edge(node, str(member['id']))
+        i += 1 # update index
     
     graph.write_edges_file()
     graph.write_nodes_file()
