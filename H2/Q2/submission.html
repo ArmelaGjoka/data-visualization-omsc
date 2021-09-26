@@ -69,7 +69,10 @@ d3.dsv(",", "board_games.csv", function(d) {
       .data(links)
       .enter()
       .append("path")
-      .attr("class", function(d) { return "link " + d.type; });
+      .attr("class", function(d) { return "link " + d.type; })
+      .style("stroke", function(d){ if(d.value < 1) { return 'gray'} return 'green';})
+      .style("stroke-width", function(d){ if(d.value < 1) { return 5 } return 2;})
+      .style("stroke-dasharray", function(d){ if(d.value > 0) { return "5,5" }});
 
   // define the nodes
   var node = svg.selectAll(".node")
@@ -80,17 +83,42 @@ d3.dsv(",", "board_games.csv", function(d) {
           .on("start", dragstarted)
           .on("drag", dragged)
           .on("end", dragended));
+          
+  // Add node labels
+  node.append("text")
+        .text(function (d) { return d.name; })
+        .style("text-anchor", "top-right")
+        .style("font-weight", "bold")
+        .attr("x", 5)
+        .attr("y", -10)
 
   // add the nodes
+  var colorScale = d3.scaleLinear().range(['#fef0d9', '#fdcc8a', '#e34a33', '#b30000']);
   node.append("circle")
       .attr("id", function(d){
          return (d.name.replace(/\s+/g,'').toLowerCase());
       })
-      .attr("r", 5);
+      .attr("r",function(d) {      
+        d.weight = links.filter(function(l) {
+            const a=  l.source.index == d.index || l.target.index == d.index;
+            return a ? 1 : 0;
+        }).length;      
+        var minRadius = 10;
+        return minRadius + (d.weight * 2);
+   }).style("fill", function(d) { return colorScale(d.weight); });
+
+   // Add username
+   svg.append("text")
+        .attr("id", "credit")
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .text("agjoka3");
 
   // add the curvy lines
   function tick() {
+      
       path.attr("d", function(d) {
+
           var dx = d.target.x - d.source.x,
               dy = d.target.y - d.source.y,
               dr = Math.sqrt(dx * dx + dy * dy);
