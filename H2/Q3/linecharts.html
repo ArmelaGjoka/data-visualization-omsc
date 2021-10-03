@@ -3,10 +3,137 @@
 <head>
   <title>Line Charts</title>
   <meta charset="utf-8">
-
   <script type="text/javascript" src="../lib/d3.v5.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 
 <body>
-  <div id='signature'>gburdell3</div>
+  <div id='signature'>agjoka3</div>
+  <div id="one"></div>
+  <script>
+  const width = 800;
+  const height = 500;
+  const margin = 5;
+  const padding = 5;
+  const adj = 30;
+  
+  // we are appending SVG first
+  const svg = d3.select("div#one").append("svg")
+                .attr("id", "svg-a")
+                .attr("width", width + 3 * adj)
+                .attr("height", height + 3 * adj)
+                .style("padding", 2 * padding)
+                .style("margin", 3 * margin)
+    
+    svg.append("text")
+       .attr("id", "title-a")
+       .text("Number of Ratings 2016-2020")
+       .attr("x", 200)
+       .attr("y", 20)
+       .style("font-weight", 600)
+       .style("font-size", "19px")
+  
+  //-----------------------------DATA-----------------------------//
+  const timeConv =  d3.timeParse("%Y-%m-%d");
+  const dataset = d3.csv("boardgame_ratings.csv");
+  dataset.then(function(data) {
+      var slices = data.columns.slice(1).filter((col, index) => index % 2 == 0).map(function(id) {
+          return {
+              id: id,
+              values: data.filter((value, index) => index % 2 === 0).map(function(d, index){
+                    return {
+                      date: timeConv(d.date),
+                      measurement: +d[id]
+                    };
+              })
+          };
+      });
+  
+  //----------------------------SCALES----------------------------//
+  const xScale = d3.scaleTime().range([0,width]);
+  const yScale = d3.scaleLinear().range([height, 0]);
+  
+  xScale.domain(d3.extent(data, function(d){
+      return timeConv(d.date)}));
+  
+  yScale.domain([(0), d3.max(slices, function(c) {
+      return d3.max(c.values, function(d) {
+          return d.measurement; });
+          })
+      ]);
+  
+  //-----------------------------AXES-----------------------------//
+  const yaxis = d3.axisLeft()
+      .ticks((slices[0].values).length / 2)
+      .scale(yScale);
+  
+  const xaxis = d3.axisBottom()
+      .ticks(d3.timeMonth.every(3))
+      .tickFormat(d3.timeFormat('%b %y'))
+      .scale(xScale);
+  
+  //----------------------------LINES-----------------------------//
+  const line = d3.line()
+      .x(function(d) { return xScale(d.date); })
+      .y(function(d) { return yScale(d.measurement); });
+  
+
+  const plotA = svg.append("g")
+                .attr("id", "plot-a")
+
+        plotA.append("g")
+        .attr("id", "x-axis-a")
+        .attr("class", "axis")
+        .attr("transform", "translate(30," + height + ")")
+        .call(xaxis)
+        .append("text")
+        .style("text-anchor", "start")
+        .style("font-size", "16px")
+        .attr("y", 50)
+        .attr("x", 450)
+        .text("Month");
+
+        plotA.append("g")
+        .attr("id", "y-axis-a")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + 50 + "," + 10 + ")")
+        .call(yaxis)
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("dy", "1.75em")
+        .attr("y", 6)
+        .style("text-anchor", "end")
+        .text("Num of Ratings");
+
+//----------------------------LINES-----------------------------//
+    var color = d3.schemeCategory10;
+    const linesElement = plotA.append("g").attr("id", "lines-a")
+                    .attr("transform",
+                        "translate(" + 50 + "," + 0 + ")");
+
+    const lines = linesElement.selectAll("lines")
+        .data(slices)
+        .enter()
+
+    lines.append("path")
+    .attr("class", "line")
+    .style("stroke", function(d, index) { 
+            return d.color = color[index]; })
+    .attr("d", function(d) { return line(d.values); });
+
+    lines.append("text")
+    .attr("class","serie_label")
+    .datum(function(d) {
+        return {
+            id: d.id.split('=')[0],
+            value: d.values[d.values.length - 1]}; })
+    .attr("transform", function(d) {
+            return "translate(" + (xScale(d.value.date))  
+            + "," + (yScale(d.value.measurement) + 10 )+ ")"; })
+    .attr("x", 5)
+    .text(function(d) { return d.id; });
+
+});
+</script>
+
 </body>
