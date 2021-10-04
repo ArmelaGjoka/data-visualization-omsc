@@ -138,7 +138,7 @@ const svgTwo = d3.select("div#one").append("svg")
                 .attr("height", height + margin.top + margin.bottom)
     
     svgTwo.append("text")
-       .attr("id", "title-b")
+       .attr("id", "title-c-1")
        .text("Number of Ratings 2016-2020 with Rankings")
        .attr("x", 200)
        .attr("y", 20)
@@ -276,11 +276,156 @@ const svgTwo = d3.select("div#one").append("svg")
             return d.rank;
         })
         .attr("transform", function(d){ //<-- use transform it's not a g
-        return "translate(" + xScaleTwo(d.date) + "," + yScaleTwo(d.measurement) + ")";
-  });
-
-  
+        return "translate(" + xScaleTwo(d.date) + "," + yScaleTwo(d.measurement) + ")"});
 });
+
+// CHART THREE
+const svgThree = d3.select("div#one").append("svg")
+                .attr("id", "svg-c-1")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+    
+    svgThree.append("text")
+       .attr("id", "title-c-1")
+       .text("Number of Ratings 2016-2020 with Rankings (Square Root Scale)")
+       .attr("x", 200)
+       .attr("y", 20)
+       .style("font-weight", 600)
+       .style("font-size", "19px")
+  
+  //-----------------------------DATA-----------------------------//
+  var colors = d3.schemeCategory10;
+  dataset.then(function(data) {
+      var slicesThree = data.columns.slice(1).filter((col, index) => index % 2 == 0).map(function(id, index) {
+          const color = colors[index]
+          return {
+              id: id,
+              rank: 5,
+              color,
+              values: data.map(function(d, index){
+                    const game = id.split("=")[0];
+                    const rankField = game + "=rank";
+                    return {
+                      date: timeConv(d.date),
+                      measurement: +d[id],
+                      color,
+                      rank: +d[rankField],
+                    };
+              })
+          };
+      });
+ 
+  //----------------------------SCALES----------------------------//
+  const xScaleThree = d3.scaleTime().range([0,width]);
+  const yScaleThree = d3.scaleSqrt().range([height, 0]);
+  
+  xScaleThree.domain(d3.extent(data, function(d){
+      return timeConv(d.date)}));
+  
+  yScaleThree.domain([(0), d3.max(slicesThree, function(c) {
+      return d3.max(c.values, function(d) {
+          return d.measurement; });
+          })
+      ]);
+  
+  //-----------------------------AXES-----------------------------//
+  const yaxisThree = d3.axisLeft()
+      .ticks(10)
+      .scale(yScaleThree);
+  
+  const xaxisThree = d3.axisBottom()
+      .ticks(d3.timeMonth.every(3))
+      .tickFormat(d3.timeFormat('%b %y'))
+      .scale(xScaleThree);
+  
+  //----------------------------LINES-----------------------------//
+  const lineThree = d3.line()
+      .x(function(d) { return xScaleThree(d.date); })
+      .y(function(d) { return yScaleThree(d.measurement); });
+  
+
+  const plotB = svgThree.append("g")
+                .attr("id", "plot-c-1")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        plotB.append("g")
+        .attr("id", "x-axis-c-1")
+        .attr("class", "axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xaxisThree)
+        .append("text")
+        .style("text-anchor", "start")
+        .style("font-size", "16px")
+        .attr("y", 50)
+        .attr("x", 450)
+        .text("Month");
+
+        plotB.append("g")
+        .attr("id", "y-axis-c-1")
+        .attr("class", "axis")
+        .call(yaxisThree)
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("dy", "1.75em")
+        .attr("y", 6)
+        .style("text-anchor", "end")
+        .text("Num of Ratings");
+
+//----------------------------LINES-----------------------------//
+
+    const linesElement = plotB.append("g").attr("id", "lines-c-1");
+
+    const lines = linesElement.selectAll("lines")
+        .data(slicesThree)
+        .enter()
+
+    lines.append("path")
+    .attr("class", "line")
+    .style("stroke", function(d, index) { 
+            return d.color = colors[index]; })
+    .attr("d", function(d) { return lineThree(d.values); });
+
+    lines.append("text")
+    .attr("class","serie_label")
+    .datum(function(d) {
+        return {
+            id: d.id.split('=')[0],
+            value: d.values[d.values.length - 1]};
+         })
+    .attr("transform", function(d) {
+            return "translate(" + (xScaleThree(d.value.date))  
+            + "," + (yScaleThree(d.value.measurement))+ ")"; })
+    .text(function(d) { return d.id; });
+
+    const symbolsB = plotB.append("g").attr("id", "symbols-c-1");
+
+    var pointsData = [];
+    var games = [ "Catan", "Codenames", "Terraforming Mars", "Gloomhaven"];
+    for (var i = 0; i < slicesThree.length; i+=1) {
+         const gameId = slicesThree[i].id.split("=")[0];
+         if (games.indexOf(gameId) > -1 ) {
+            pointsData = [...pointsData, ...slicesThree[i].values.filter((d, i) => (i + 1) % 3 == 0)];
+         }
+    }
+
+    symbolsB.selectAll(".dot")
+        .data(pointsData)
+        .enter()
+        .append("circle") 
+        .attr("class", "dot")
+        .style("fill", function(d) { 
+                return d.color  })
+        .attr("cx", function(d) { return xScaleThree(d.date); })
+        .attr("cy", function(d) { return yScaleThree(d.measurement); })
+        .attr("r", 8)
+        .append('text')
+        .attr("fill", "white")
+        .text(function(d){
+            return d.rank;
+        })
+        .attr("transform", function(d){ //<-- use transform it's not a g
+        return "translate(" + xScaleThree(d.date) + "," + yScaleThree(d.measurement) + ")"});
+    })
 </script>
 
 
