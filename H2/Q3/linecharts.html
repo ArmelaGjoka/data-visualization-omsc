@@ -10,6 +10,7 @@
 <body>
   <div id='signature'>agjoka3</div>
   <div id="one"></div>
+  <div id="two"></div>
   <script>
   const width = 800;
   const height = 500;
@@ -18,14 +19,14 @@
   const adj = 30;
   
   // we are appending SVG first
-  const svg = d3.select("div#one").append("svg")
+  const svgOne = d3.select("div#one").append("svg")
                 .attr("id", "svg-a")
                 .attr("width", width + 3 * adj)
                 .attr("height", height + 3 * adj)
                 .style("padding", 2 * padding)
                 .style("margin", 3 * margin)
     
-    svg.append("text")
+    svgOne.append("text")
        .attr("id", "title-a")
        .text("Number of Ratings 2016-2020")
        .attr("x", 200)
@@ -78,7 +79,7 @@
       .y(function(d) { return yScale(d.measurement); });
   
 
-  const plotA = svg.append("g")
+  const plotA = svgOne.append("g")
                 .attr("id", "plot-a")
 
         plotA.append("g")
@@ -134,6 +135,162 @@
     .text(function(d) { return d.id; });
 
 });
+
+
+// CHART TWO: 
+
+const svgTwo = d3.select("div#one").append("svg")
+                .attr("id", "svg-b")
+                .attr("width", width + 3 * adj)
+                .attr("height", height + 3 * adj)
+                .style("padding", 2 * padding)
+                .style("margin", 3 * margin)
+    
+    svgTwo.append("text")
+       .attr("id", "title-b")
+       .text("Number of Ratings 2016-2020 with Rankings")
+       .attr("x", 200)
+       .attr("y", 20)
+       .style("font-weight", 600)
+       .style("font-size", "19px")
+  
+  //-----------------------------DATA-----------------------------//
+  var colors = d3.schemeCategory10;
+  dataset.then(function(data) {
+      var slicesTwo = data.columns.slice(1).filter((col, index) => index % 2 == 0).map(function(id, index) {
+          const color = colors[index]
+          return {
+              id: id,
+              rank: 5,
+              color,
+              values: data.filter((value, index) => index % 2 === 0).map(function(d, index){
+                    const game = id.split("=")[0];
+                    const rankField = game + "=rank";
+                    return {
+                      date: timeConv(d.date),
+                      measurement: +d[id],
+                      color,
+                      rank: +d[rankField],
+                    };
+              })
+          };
+      });
+ 
+  //----------------------------SCALES----------------------------//
+  const xScaleTwo = d3.scaleTime().range([0,width]);
+  const yScaleTwo = d3.scaleLinear().range([height, 0]);
+  
+  xScaleTwo.domain(d3.extent(data, function(d){
+      return timeConv(d.date)}));
+  
+  yScaleTwo.domain([(0), d3.max(slicesTwo, function(c) {
+      return d3.max(c.values, function(d) {
+          return d.measurement; });
+          })
+      ]);
+  
+  //-----------------------------AXES-----------------------------//
+  const yaxisTwo = d3.axisLeft()
+      .ticks((slicesTwo[0].values).length / 2)
+      .scale(yScaleTwo);
+  
+  const xaxisTwo = d3.axisBottom()
+      .ticks(d3.timeMonth.every(3))
+      .tickFormat(d3.timeFormat('%b %y'))
+      .scale(xScaleTwo);
+  
+  //----------------------------LINES-----------------------------//
+  const lineTwo = d3.line()
+      .x(function(d) { return xScaleTwo(d.date); })
+      .y(function(d) { return yScaleTwo(d.measurement); });
+  
+
+  const plotB = svgTwo.append("g")
+                .attr("id", "plot-b")
+
+        plotB.append("g")
+        .attr("id", "x-axis-b")
+        .attr("class", "axis")
+        .attr("transform", "translate(30," + height + ")")
+        .call(xaxisTwo)
+        .append("text")
+        .style("text-anchor", "start")
+        .style("font-size", "16px")
+        .attr("y", 50)
+        .attr("x", 450)
+        .text("Month");
+
+        plotB.append("g")
+        .attr("id", "y-axis-b")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + 50 + "," + 10 + ")")
+        .call(yaxisTwo)
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("dy", "1.75em")
+        .attr("y", 6)
+        .style("text-anchor", "end")
+        .text("Num of Ratings");
+
+//----------------------------LINES-----------------------------//
+
+    const linesElement = plotB.append("g").attr("id", "lines-b")
+/*                     .attr("transform",
+                        "translate(" + 50 + "," + 0 + ")"); */
+
+    const lines = linesElement.selectAll("lines")
+        .data(slicesTwo)
+        .enter()
+
+    lines.append("path")
+    .attr("class", "line")
+    .style("stroke", function(d, index) { 
+            return d.color = colors[index]; })
+    .attr("d", function(d) { return lineTwo(d.values); });
+
+    lines.append("text")
+    .attr("class","serie_label")
+    .datum(function(d) {
+        return {
+            id: d.id.split('=')[0],
+            value: d.values[d.values.length - 1]};
+         })
+    .attr("transform", function(d) {
+            return "translate(" + (xScaleTwo(d.value.date))  
+            + "," + (yScaleTwo(d.value.measurement) + 10 )+ ")"; })
+    .attr("x", 5)
+    .text(function(d) { return d.id; });
+
+    const symbolsB = plotB.append("g").attr("id", "symbols-b")
+/*                     .attr("transform",
+                        "translate(" + 30 + "," + 0 + ")"); */
+    
+
+
+    var pointsData = [];
+    for (var i = 0; i < slicesTwo.length; i+=2) {
+         pointsData = [...pointsData, ...slicesTwo[i].values.filter((d, i) => i % 3)];
+    }
+    console.log('Points data: ', pointsData);
+    symbolsB.selectAll(".dot")
+    .data(pointsData)
+    .enter().append("circle") 
+    .attr("class", "dot")
+    .style("fill", function(d) { 
+            return d.color  })
+    .attr("cx", function(d) { return xScaleTwo(d.date); })
+    .attr("cy", function(d) { return yScaleTwo(d.measurement); })
+    .attr("r", 8)
+    .append('text')
+    .attr("fill", "white")
+    .text(function(d){
+        return d.rank;
+    })
+    .attr("transform", function(d){ //<-- use transform it's not a g
+    return "translate(" + xScaleTwo(d.date) + "," + yScaleTwo(d.measurement) + ")";
+  });
+});
 </script>
+
 
 </body>
