@@ -10,22 +10,18 @@
 <body>
   <div id='signature'>agjoka3</div>
   <div id="one"></div>
-  <div id="two"></div>
   <script>
-  const width = 800;
-  const height = 500;
-  const margin = 5;
-  const padding = 5;
-  const adj = 30;
+  
+  var margin = {top: 50, right: 50, bottom: 50, left: 50},
+      width = 900 - margin.left - margin.right, 
+      height = 500 - margin.top - margin.bottom; 
   
   // we are appending SVG first
   const svgOne = d3.select("div#one").append("svg")
                 .attr("id", "svg-a")
-                .attr("width", width + 3 * adj)
-                .attr("height", height + 3 * adj)
-                .style("padding", 2 * padding)
-                .style("margin", 3 * margin)
-    
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+
     svgOne.append("text")
        .attr("id", "title-a")
        .text("Number of Ratings 2016-2020")
@@ -37,11 +33,12 @@
   //-----------------------------DATA-----------------------------//
   const timeConv =  d3.timeParse("%Y-%m-%d");
   const dataset = d3.csv("boardgame_ratings.csv");
+  
   dataset.then(function(data) {
       var slices = data.columns.slice(1).filter((col, index) => index % 2 == 0).map(function(id) {
           return {
               id: id,
-              values: data.filter((value, index) => index % 2 === 0).map(function(d, index){
+              values: data.map(function(d, index){
                     return {
                       date: timeConv(d.date),
                       measurement: +d[id]
@@ -65,7 +62,7 @@
   
   //-----------------------------AXES-----------------------------//
   const yaxis = d3.axisLeft()
-      .ticks((slices[0].values).length / 2)
+      .ticks(10)
       .scale(yScale);
   
   const xaxis = d3.axisBottom()
@@ -81,11 +78,12 @@
 
   const plotA = svgOne.append("g")
                 .attr("id", "plot-a")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         plotA.append("g")
         .attr("id", "x-axis-a")
         .attr("class", "axis")
-        .attr("transform", "translate(30," + height + ")")
+        .attr("transform", "translate(0," + height + ")")
         .call(xaxis)
         .append("text")
         .style("text-anchor", "start")
@@ -97,7 +95,6 @@
         plotA.append("g")
         .attr("id", "y-axis-a")
         .attr("class", "axis")
-        .attr("transform", "translate(" + 50 + "," + 10 + ")")
         .call(yaxis)
         .append("text")
         .attr("transform", "rotate(-90)")
@@ -109,8 +106,6 @@
 //----------------------------LINES-----------------------------//
     var color = d3.schemeCategory10;
     const linesElement = plotA.append("g").attr("id", "lines-a")
-                    .attr("transform",
-                        "translate(" + 50 + "," + 0 + ")");
 
     const lines = linesElement.selectAll("lines")
         .data(slices)
@@ -123,15 +118,13 @@
     .attr("d", function(d) { return line(d.values); });
 
     lines.append("text")
-    .attr("class","serie_label")
     .datum(function(d) {
         return {
             id: d.id.split('=')[0],
             value: d.values[d.values.length - 1]}; })
     .attr("transform", function(d) {
-            return "translate(" + (xScale(d.value.date))  
-            + "," + (yScale(d.value.measurement) + 10 )+ ")"; })
-    .attr("x", 5)
+            return "translate(" + (xScale(d.value.date) + 10)  
+            + "," + (yScale(d.value.measurement))+ ")"; })
     .text(function(d) { return d.id; });
 
 });
@@ -141,10 +134,8 @@
 
 const svgTwo = d3.select("div#one").append("svg")
                 .attr("id", "svg-b")
-                .attr("width", width + 3 * adj)
-                .attr("height", height + 3 * adj)
-                .style("padding", 2 * padding)
-                .style("margin", 3 * margin)
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
     
     svgTwo.append("text")
        .attr("id", "title-b")
@@ -163,7 +154,7 @@ const svgTwo = d3.select("div#one").append("svg")
               id: id,
               rank: 5,
               color,
-              values: data.filter((value, index) => index % 2 === 0).map(function(d, index){
+              values: data.map(function(d, index){
                     const game = id.split("=")[0];
                     const rankField = game + "=rank";
                     return {
@@ -191,7 +182,7 @@ const svgTwo = d3.select("div#one").append("svg")
   
   //-----------------------------AXES-----------------------------//
   const yaxisTwo = d3.axisLeft()
-      .ticks((slicesTwo[0].values).length / 2)
+      .ticks(10)
       .scale(yScaleTwo);
   
   const xaxisTwo = d3.axisBottom()
@@ -207,11 +198,12 @@ const svgTwo = d3.select("div#one").append("svg")
 
   const plotB = svgTwo.append("g")
                 .attr("id", "plot-b")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         plotB.append("g")
         .attr("id", "x-axis-b")
         .attr("class", "axis")
-        .attr("transform", "translate(30," + height + ")")
+        .attr("transform", "translate(0," + height + ")")
         .call(xaxisTwo)
         .append("text")
         .style("text-anchor", "start")
@@ -223,7 +215,6 @@ const svgTwo = d3.select("div#one").append("svg")
         plotB.append("g")
         .attr("id", "y-axis-b")
         .attr("class", "axis")
-        .attr("transform", "translate(" + 50 + "," + 10 + ")")
         .call(yaxisTwo)
         .append("text")
         .attr("transform", "rotate(-90)")
@@ -234,9 +225,7 @@ const svgTwo = d3.select("div#one").append("svg")
 
 //----------------------------LINES-----------------------------//
 
-    const linesElement = plotB.append("g").attr("id", "lines-b")
-/*                     .attr("transform",
-                        "translate(" + 50 + "," + 0 + ")"); */
+    const linesElement = plotB.append("g").attr("id", "lines-b");
 
     const lines = linesElement.selectAll("lines")
         .data(slicesTwo)
@@ -257,38 +246,40 @@ const svgTwo = d3.select("div#one").append("svg")
          })
     .attr("transform", function(d) {
             return "translate(" + (xScaleTwo(d.value.date))  
-            + "," + (yScaleTwo(d.value.measurement) + 10 )+ ")"; })
-    .attr("x", 5)
+            + "," + (yScaleTwo(d.value.measurement))+ ")"; })
     .text(function(d) { return d.id; });
 
-    const symbolsB = plotB.append("g").attr("id", "symbols-b")
-/*                     .attr("transform",
-                        "translate(" + 30 + "," + 0 + ")"); */
-    
-
+    const symbolsB = plotB.append("g").attr("id", "symbols-b");
 
     var pointsData = [];
-    for (var i = 0; i < slicesTwo.length; i+=2) {
-         pointsData = [...pointsData, ...slicesTwo[i].values.filter((d, i) => i % 3)];
+    var games = [ "Catan", "Codenames", "Terraforming Mars", "Gloomhaven"];
+    for (var i = 0; i < slicesTwo.length; i+=1) {
+         const gameId = slicesTwo[i].id.split("=")[0];
+         if (games.indexOf(gameId) > -1 ) {
+            pointsData = [...pointsData, ...slicesTwo[i].values.filter((d, i) => (i + 1) % 3 == 0)];
+         }
     }
-    console.log('Points data: ', pointsData);
+
     symbolsB.selectAll(".dot")
-    .data(pointsData)
-    .enter().append("circle") 
-    .attr("class", "dot")
-    .style("fill", function(d) { 
-            return d.color  })
-    .attr("cx", function(d) { return xScaleTwo(d.date); })
-    .attr("cy", function(d) { return yScaleTwo(d.measurement); })
-    .attr("r", 8)
-    .append('text')
-    .attr("fill", "white")
-    .text(function(d){
-        return d.rank;
-    })
-    .attr("transform", function(d){ //<-- use transform it's not a g
-    return "translate(" + xScaleTwo(d.date) + "," + yScaleTwo(d.measurement) + ")";
+        .data(pointsData)
+        .enter()
+        .append("circle") 
+        .attr("class", "dot")
+        .style("fill", function(d) { 
+                return d.color  })
+        .attr("cx", function(d) { return xScaleTwo(d.date); })
+        .attr("cy", function(d) { return yScaleTwo(d.measurement); })
+        .attr("r", 8)
+        .append('text')
+        .attr("fill", "white")
+        .text(function(d){
+            return d.rank;
+        })
+        .attr("transform", function(d){ //<-- use transform it's not a g
+        return "translate(" + xScaleTwo(d.date) + "," + yScaleTwo(d.measurement) + ")";
   });
+
+  
 });
 </script>
 
