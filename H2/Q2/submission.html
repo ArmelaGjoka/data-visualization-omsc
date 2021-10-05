@@ -79,6 +79,12 @@ d3.dsv(",", "board_games.csv", function(d) {
       .data(force.nodes())
       .enter().append("g")
       .attr("class", "node")
+      .on("dblclick", function(d) {
+          d3.event.preventDefault();
+          d3.select(this).select("circle").style("fill", colorScale(d.weight));
+          d.fx = null;
+          d.fy = null;
+        })
       .call(d3.drag()
           .on("start", dragstarted)
           .on("drag", dragged)
@@ -137,6 +143,7 @@ d3.dsv(",", "board_games.csv", function(d) {
 
   function dragstarted(d) {
       if (!d3.event.active) force.alphaTarget(0.3).restart();
+      d3.select(this).select("circle").style("fill", "gray");
       d.fx = d.x;
       d.fy = d.y;
   };
@@ -148,14 +155,8 @@ d3.dsv(",", "board_games.csv", function(d) {
 
   function dragended(d) {
       if (!d3.event.active) force.alphaTarget(0);
-      if (d.fixed == true) {
-          d.fx = d.x;
-          d.fy = d.y;
-      }
-      else {
-          d.fx = null;
-          d.fy = null;
-      }
+      d.fx = d.x;
+      d.fy = d.y;
   };
   
 }).catch(function(error) {
