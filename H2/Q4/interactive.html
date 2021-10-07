@@ -16,9 +16,9 @@
         const svg = createMainSvg();
         
         // Init bar chart
-        const barSvg = createMainSvg().attr("id", "barchart").style("display", "none");      
-        const barElement = barSvg.append("g").attr("id", "bars").style("display", "none").attr("transform", "translate(" + margin.left + "," + 0 + ")");   
-        const barTitle = barSvg.append("text").attr("id", "bar_chart_title").style("display", "none");      
+        const barSvg = createMainSvg().attr("id", "barchart").style("display", "none");     
+        var barElement = barSvg.append("g").attr("id", "bars").style("display", "none").attr("transform", "translate(" + margin.left + "," + 0 + ")");
+        var barTitle = barSvg.append("text").attr("id", "bar_chart_title").style("display", "none");    
         const barChartData = [];
     
         svg.append("text")
@@ -79,7 +79,6 @@
              })
              values.sort(function(a, b) { return a.rating - b.rating; })
           })
-          console.log('Slices" ', slices);
       //----------------------------SCALES----------------------------//
       const xScale = d3.scaleLinear().range([0,width]);
       const yScale = d3.scaleLinear().range([height, 0]);
@@ -185,10 +184,15 @@
                 d3.select(this).attr("r",7);
 
                 if (d.filmUsers && d.filmUsers.length > 0) {
+
+                    // remove previous elements
+                    barSvg.selectAll("g").remove();
+                    
+                    barElement = barSvg.append("g").attr("id", "bars").style("display", "none").attr("transform", "translate(" + margin.left + "," + 0 + ")");      
+
                     barSvg.style("display", "inline"); 
                     barElement.style("display", "inline");
                     const barChartData = d.filmUsers.sort((a, b) => b.value - a.value).sort((a, b) => a.name - b.name).slice(0, 5);
-                    console.log('SORTED: ', barChartData);
                     var xScaleBar = d3.scaleLinear()
                                     .range([0, width])
                                     .domain([0, d3.max(barChartData, function (d) {
