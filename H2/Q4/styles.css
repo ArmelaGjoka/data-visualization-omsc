@@ -30,3 +30,7 @@
         fill: none;
         stroke-width: 3;
     }
+
+    .bar {
+        fill: #5f89ad;
+    }
