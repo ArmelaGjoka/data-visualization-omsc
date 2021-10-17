@@ -98,7 +98,9 @@ all.show()
 // Hint: You can use the dataframe obtained from the previous part, and will need to do the join with the 'taxi_zone_lookup' dataframe. Also, checkout the "agg" function applied to a grouped dataframe.
 
 // ENTER THE CODE BELOW
-
+val allBoroughs = df_filter.join(taxidf,df_filter("PULocationID") ===  taxidf("LocationID") || df_filter("DOLocationID") === taxidf("LocationID"),"inner").groupBy("Borough")
+.agg(count(lit(1)).alias("number_activities")).orderBy(desc("number_activities"))
+allBoroughs.show()
 
 // COMMAND ----------
 
@@ -108,7 +110,9 @@ all.show()
 // Hint: You may need to group by the "date" (without time stamp - time in the day) first. Checkout "to_date" function.
 
 // ENTER THE CODE BELOW
-
+val allDays = df_filter.select(to_date(col("pickup_datetime")).alias("toDate")).groupBy("toDate").agg(count(lit(1)).alias("dateCount"))
+val topTwoDays = allDays.groupBy(date_format(col("toDate"), "EEEE").alias("day_of_week")).agg(avg("dateCount").alias("avg_count")).orderBy(desc("avg_count")).limit(2)
+topTwoDays.show()
 
 // COMMAND ----------
 
@@ -118,15 +122,22 @@ all.show()
 // Hint: You may need to use "Window" over hour of day, along with "group by" to find the MAXIMUM count of pickups
 
 // ENTER THE CODE BELOW
+val brooklynBoroughs = df_filter.join(taxidf,df_filter("PULocationID") ===  taxidf("LocationID"),"inner").filter(col("Borough") === "Brooklyn").select(col("Zone"), hour(col("pickup_datetime")).alias("hour")).groupBy("hour", "Zone").agg(count(lit(1)).alias("count"))
+val maxDf = brooklynBoroughs.groupBy(col("hour").alias("mHour")).agg(max(col("count")).alias("max")).orderBy(desc("max"))
+val result = maxDf.join(brooklynBoroughs, maxDf("mHour") === brooklynBoroughs("hour") && maxDf("max") === brooklynBoroughs("count")).select("hour", "Zone", "max").orderBy(asc("hour"))
 
+result.show(24)
 
 // COMMAND ----------
 
 // PART 6 - Find which 3 different days of the January, in Manhattan, saw the largest percentage increment in pickups compared to previous day, in the order from largest increment % to smallest increment %. 
 // Print the day of month along with the percent CHANGE (can be negative), rounded to 2 decimal places, in number of pickups compared to previous day.
 // Output Schema: day int, percent_change float
-
-
+val mb = df_filter.join(taxidf,df_filter("PULocationID") ===  taxidf("LocationID"),"inner").filter(col("Borough") === "Manhattan" && month(col("pickup_datetime")) === 1)
+.select(dayofmonth(col("pickup_datetime")).alias("day")).groupBy("day").agg(count(lit(1)).alias("count")).orderBy("day")
+val mmb = mb.withColumn("pCount", lag(mb("count"), 1).over(Window.orderBy(mb("day"))))
+val mbb = mmb.select(col("day"), ((col("count")/col("pCount") - 1) * 100).alias("percentage_change")).orderBy(desc("percentage_change")).limit(3)
+mbb.show()
 // Hint: You might need to use lag function, over a window ordered by day of month.
 
 // ENTER THE CODE BELOW
