@@ -30,6 +30,14 @@ val df = spark.read
 // LOAD THE "taxi_zone_lookup.csv" FILE SIMILARLY AS ABOVE. CAST ANY COLUMN TO APPROPRIATE DATA TYPE IF NECESSARY.
 
 // ENTER THE CODE BELOW
+val taxicustomSchema = StructType(Array(StructField("LocationID", StringType, true), StructField("Borough", StringType, true), StructField("Zone", StringType, true), StructField("service_zone", StringType, true)))
+val taxidf = spark.read
+   .format("com.databricks.spark.csv")
+   .option("header", "true") // Use first line of all files as header
+   .option("nullValue", "null")
+   .schema(taxicustomSchema)
+   .load("/FileStore/tables/taxi_zone_lookup.csv")
+taxidf.show(5)
 
 // COMMAND ----------
 
@@ -78,7 +86,9 @@ df_top_pu.show()
 // Hint: In order to get the result, you may need to perform a join operation between the two dataframes that you created in earlier parts (to come up with the sum of the number of pickups and dropoffs on each location). 
 
 // ENTER THE CODE BELOW
-
+val all = df_filter.join(taxidf,df_filter("PULocationID") ===  taxidf("LocationID") || df_filter("DOLocationID") === taxidf("LocationID"),"inner").groupBy("LocationID")
+.agg(count(lit(1)).alias("number_activities")).orderBy(desc("number_activities"), asc("LocationID")).limit(3)
+all.show()
 
 // COMMAND ----------
 
